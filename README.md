@@ -39,17 +39,15 @@ Default: undefined
 
 ISO 639 or ISO 3166 language code (e.g. de). Please make sure that you have the respective aspell language pack installed (e.g. `sudo apt-get install aspell-de`).
 
-##### replacement
-Type: `String`
-Default: '%s (suggestions: %s)'
-
-The string that will replace the wrong word whereas the first placeholder is the wrong word and the second placeholder a list of suggestions.
-
 ## Changelog
 
-### Version 0.2.0 (Future)
+### Version 0.3.0 (Future)
 
 - Ignore list
+
+### Version 0.2.0 (20140331)
+
+- Improved readability.
 
 ### Version 0.1.2 (20140331)
 
