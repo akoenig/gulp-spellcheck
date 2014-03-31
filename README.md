@@ -34,9 +34,11 @@ gulp.task('spellcheck', function () {
 
 - Ignore list
 
-### Version 0.2.0 (20140331)
+### Version 0.2.0 (Future)
 
-- Improved readability.
+- [ ] Update the README
+- [ ] Better regexp for fetching words.
+- [X] Improved readability.
 
 ### Version 0.1.2 (20140331)
 
