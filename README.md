@@ -1,6 +1,6 @@
 # gulp-spellcheck
 
-> A gulp plugin for spell checking files with GNU Aspell.
+> A gulp plugin for spell-checking with [GNU Aspell](http://aspell.net/).
 
 ## Usage
 
