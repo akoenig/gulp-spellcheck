@@ -36,7 +36,7 @@ describe('The "gulp-spellcheck" plugin', function () {
         });
 
         strom.on('end', function onEnd () {
-            expect(checked.indexOf('suggestions')).not.toBe(-1);
+            expect(checked.indexOf('{0}')).not.toBe(-1);
 
             done();            
         });
@@ -46,14 +46,31 @@ describe('The "gulp-spellcheck" plugin', function () {
     });
 
     it('should return an error if the language is unknown', function (done) {
-        var strom = spellcheck({
-            language: 'unknownLanguage'
-        });
-
-        strom.on('error', function (err) {
+        try {
+            spellcheck({
+                language: 'unknownLanguage'
+            });
+        } catch (err) {
             expect(err).toBeDefined();
 
             done();
+        }
+    });
+
+    it('should be able to handle custom dictionaries', function (done) {
+        var strom = spellcheck({
+            language: path.join(__dirname, 'dictionary')
+        });
+        var checked = '';
+
+        strom.on('data', function (chunk) {
+            checked = checked + chunk.contents.toString('utf-8');
+        });
+
+        strom.on('end', function onEnd () {
+            expect(checked.indexOf('{0}')).not.toBe(-1);
+
+            done();            
         });
 
         strom.write(file);

@@ -13,24 +13,57 @@
 
 'use strict';
 
-var util        = require('util');
-var through     = require('through2');
-var aspell      = require('aspell');
-var gutil       = require('gulp-util');
-var PLUGIN_NAME = 'gulp-spellcheck';
+var util         = require('util');
+var through      = require('through2');
+var gutil        = require('gulp-util');
+var dictionaries = require('./dictionaries/');
+var PLUGIN_NAME  = 'gulp-spellcheck';
 
 module.exports = function (options) {
+
+    var dictionary;
 
     //
     // Option normalization
     //
     options = options || {};
-    options.language = (options.language)? util.format('--lang=%s', options.language) : '';
 
-    //
-    // GNU Aspell configuration
-    //
-    aspell.args.push(options.language);
+    options.language = options.language || 'en_US';
+
+    dictionary = dictionaries.get(options.language);
+
+    if (!dictionary) {
+        throw new gutil.PluginError(PLUGIN_NAME, 'No dictionary for "' + options.language + '" available.');
+    }
+
+    /**
+     * Extracts all words out of a string.
+     *
+     * @param  {string} content The extractable content string.
+     * @return {array} An array with all extracted words.
+     *
+     */
+    function extractWords (content) {
+        var len;
+        var i = 0;
+        var words = [];
+
+        if (content instanceof Buffer) {
+            content = content.toString('utf-8');
+        }
+
+        content = content.split(/\s+/);
+        len = content.length;
+
+        for (i; i < len; i = i + 1) {
+            // Check if this is a real word
+            if (content[i].match(/\w/g)) {
+                words.push(content[i]);
+            }
+        }
+
+        return words;
+    }
 
     /**
      * Spell-checking of the files contents.
@@ -38,60 +71,38 @@ module.exports = function (options) {
      */
     function check (file, enc, callback) {
         /*jshint validthis:true */
-        var self        = this;
-        var contents    = file.contents.toString('utf-8');
+        var self = this;
+        var contents = file.contents.toString('utf-8');
+        var words = extractWords(contents);
+        var len = words.length;
+        var i = 0;
+        var checked = 0;
         var corrections = [];
 
-        // 
-        // Remove all the control characters and pass the content to GNU Aspell.
-        // 
-        // see: http://aspell.net/man-html/Through-A-Pipe.html
-        //
-        // *word   Add a word to the personal dictionary
-        // &word   Insert the all-lowercase version of the word in the personal dictionary
-        // @word   Accept the word, but leave it out of the dictionary
-        // #   Save the current personal dictionary
-        // ~   Ignored for Ispell compatibility.
-        // +   Enter TeX mode.
-        // +mode   Enter the mode specified by mode.
-        // -   Enter the default mode.
-        // !   Enter terse mode
-        // %   Exit terse mode
-        // ^   Spell-check the rest of the line 
-        //
-        aspell(contents.replace(/(\*|\&|\@|\#|\~|\+|\-|\!|\%|\^)/g, ''))
-            .on('error', function onError (err) {
-                err = err.toString('utf-8');
+        function handleSuggestion (word) {
+            return function onSuggestion (correct, suggestions) {
+                checked = checked + 1;
 
-                return self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
-            })
-            .on('result', function onResult (result) {
-                var correction = {};
+                if (!correct && suggestions.length) {
+                    corrections.push(util.format('{%d} %s: %s', corrections.length, word, suggestions.join(', '));
 
-                if ('misspelling' === result.type && result.alternatives.length) {
-                    correction.word = result.word;
-                    correction.suggestions = result.alternatives;
-
-                    corrections.push(correction);
-
-                    contents = contents.replace(correction.word, util.format('%s {%d}', correction.word, corrections.length - 1));
-                }
-            })
-            .on('end', function () {
-                var len = corrections.length;
-                var i = 0;
-
-                contents = contents + '\n\n';
-
-                for (i; i < len; i = i + 1) {
-                    contents = contents + util.format('{%d}: %s %s', i, corrections[i].suggestions.join(', '), '\n');
+                    contents = contents.replace(word, util.format('%s {%d}', word, corrections.length - 1));
                 }
 
-                file.contents = new Buffer(contents);
-                self.push(file);
+                if (checked === len) {
+                    contents = contents + '\n\n' + corrections.join('\n');
 
-                return callback();
-            });
+                    file.contents = new Buffer(contents);
+                    self.push(file);
+
+                    return callback();
+                }
+            };
+        }
+
+        for (i; i < len; i = i + 1) {
+            dictionary.spellSuggestions(words[i], handleSuggestion(words[i]));
+        }
     }
 
     return through.obj(check);

@@ -2,6 +2,6 @@
 
 Tetxt with typs.
 
-**(Übertragung)**
+_Übertragung_
 
 adöflkjhölkh

@@ -1,7 +1,7 @@
 {
   "name": "gulp-spellcheck",
-  "description": "A gulp plugin for spell-checking with GNU Aspell.",
-  "version": "0.1.2",
+  "description": "A gulp plugin for spell-checking files.",
+  "version": "0.2.0",
   "author": {
     "name": "André König",
     "email": "andre.koenig@posteo.de"
@@ -21,7 +21,7 @@
   "dependencies": {
     "gulp-util": "^2.2.14",
     "through2": "^0.4.1",
-    "aspell": "^0.1.0"
+    "nodehun": "^0.2.1"
   },
   "devDependencies": {
     "gulp": "^3.5.5",

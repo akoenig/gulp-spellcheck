@@ -1,15 +1,10 @@
 # gulp-spellcheck [![Build Status](https://travis-ci.org/akoenig/gulp-spellcheck.svg?branch=master)](https://travis-ci.org/akoenig/gulp-spellcheck)
 
-> A gulp plugin for spell-checking with [GNU Aspell](http://aspell.net/).
+> A gulp plugin for spell-checking files.
 
 ## Usage
 
-First of all you have to make sure that you have [GNU Aspell](http://aspell.net/) installed:
-    
-    $ # Debian-based
-    $ sudo apt-get install aspell
-
-If `aspell` is available install `gulp-spellcheck` as a development dependency in your project.
+First, install `gulp-spellcheck` as a development dependency in your project.
 
 ```shell
 npm install --save-dev gulp-spellcheck
@@ -32,12 +27,6 @@ gulp.task('spellcheck', function () {
 ### spellcheck (options)
 
 #### options
-
-##### language
-Type: `String`
-Default: undefined
-
-ISO 639 or ISO 3166 language code (e.g. de). Please make sure that you have the respective aspell language pack installed (e.g. `sudo apt-get install aspell-de`).
 
 ## Changelog
 
