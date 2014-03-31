@@ -29,8 +29,7 @@ module.exports = function (options) {
     function check (file, enc, callback) {
         /*jshint validthis:true */
         var self = this;
-        var contents = file.toString('utf-8');
-
+        var contents = file.contents.toString('utf-8');
 
         aspell.args.push(options.language);
 
@@ -45,7 +44,8 @@ module.exports = function (options) {
                 }
             })
             .on('end', function () {
-                self.push(contents);
+                file.contents = new Buffer(contents);
+                self.push(file);
 
                 return callback();
             });

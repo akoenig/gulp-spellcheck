@@ -20,20 +20,28 @@ var gutil      = require('gulp-util');
 
 describe('The "gulp-spellcheck" plugin', function () {
 
+    var file = new gutil.File({
+        base: __dirname,
+        cwd: __dirname,
+        path: path.join(__dirname, 'checkable.md'),
+        contents: fs.readFileSync(path.join(__dirname, 'checkable.md'))
+    });
+
     it('should find wrong words', function (done) {
         var strom = spellcheck();
         var checked = '';
 
         strom.on('data', function (chunk) {
-            checked = checked + chunk;
+            checked = checked + chunk.contents.toString('utf-8');
         });
 
         strom.on('end', function onEnd () {
             expect(checked.indexOf('suggestions')).not.toBe(-1);
+
             done();            
         });
 
-        strom.write(fs.readFileSync(path.join(__dirname, 'checkable.md')));
+        strom.write(file);
         strom.end();
     });
 
@@ -48,7 +56,7 @@ describe('The "gulp-spellcheck" plugin', function () {
             done();
         });
 
-        strom.write(fs.readFileSync(path.join(__dirname, 'checkable.md')));
+        strom.write(file);
         strom.end();
     });
 });

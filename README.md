@@ -51,6 +51,10 @@ The string that will replace the wrong word whereas the first placeholder is the
 
 - Ignore list
 
+### Version 0.1.1 (20140331)
+
+- Fixed vinyl file access.
+
 ### Version 0.1.0 (20140331)
 
 - Initial Release.
