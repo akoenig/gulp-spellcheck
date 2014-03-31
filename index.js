@@ -22,20 +22,23 @@ var PLUGIN_NAME = 'gulp-spellcheck';
 module.exports = function (options) {
 
     options = options || {};
-    options.replacement = '%s (suggestions: %s)';
+    options.replacement = options.replacement || '%s (suggestions: %s)';
 
     options.language = (options.language)? util.format('--lang=%s', options.language) : '';
+
+    aspell.args.push(options.language);
 
     function check (file, enc, callback) {
         /*jshint validthis:true */
         var self = this;
         var contents = file.contents.toString('utf-8');
 
-        aspell.args.push(options.language);
-
-        aspell(contents)
+        // Remove all line breaks and add a circumflex in order to disable 'pipe mode'.
+        // see: http://aspell.net/man-html/Through-A-Pipe.html
+        aspell('^' + contents.replace(/\r?\n/g, ''))
             .on('error', function onError (err) {
                 err = err.toString('utf-8');
+
                 return self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
             })
             .on('result', function onResult (result) {
