@@ -25,18 +25,22 @@ module.exports = function (options) {
     // Option normalization
     //
     options = options || {};
-    options.replacement = options.replacement || '%s (suggestions: %s)';
-    options.language    = (options.language)? util.format('--lang=%s', options.language) : '';
+    options.language = (options.language)? util.format('--lang=%s', options.language) : '';
 
     //
     // GNU Aspell configuration
     //
     aspell.args.push(options.language);
 
+    /**
+     * Spell-checking of the files contents.
+     *
+     */
     function check (file, enc, callback) {
         /*jshint validthis:true */
-        var self = this;
-        var contents = file.contents.toString('utf-8');
+        var self        = this;
+        var contents    = file.contents.toString('utf-8');
+        var corrections = [];
 
         // 
         // Remove all the control characters and pass the content to GNU Aspell.
@@ -62,11 +66,27 @@ module.exports = function (options) {
                 return self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
             })
             .on('result', function onResult (result) {
+                var correction = {};
+
                 if ('misspelling' === result.type && result.alternatives.length) {
-                    contents = contents.replace(result.word, util.format(options.replacement, result.word, result.alternatives.join(', ')));
+                    correction.word = result.word;
+                    correction.suggestions = result.alternatives;
+
+                    corrections.push(correction);
+
+                    contents = contents.replace(correction.word, util.format('%s {%d}', correction.word, corrections.length - 1));
                 }
             })
             .on('end', function () {
+                var len = corrections.length;
+                var i = 0;
+
+                contents = contents + '\n\n';
+
+                for (i; i < len; i = i + 1) {
+                    contents = contents + util.format('{%d}: %s %s', i, corrections[i].suggestions.join(', '), '\n');
+                }
+
                 file.contents = new Buffer(contents);
                 self.push(file);
 
@@ -74,9 +94,5 @@ module.exports = function (options) {
             });
     }
 
-    function suggest (callback) {
-        return callback();
-    }
-
-    return through.obj(check, suggest);
+    return through.obj(check);
 };
