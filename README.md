@@ -1,4 +1,4 @@
-# gulp-spellcheck
+# gulp-spellcheck [![Build Status](https://travis-ci.org/akoenig/gulp-spellcheck.svg?branch=master)](https://travis-ci.org/akoenig/gulp-spellcheck)
 
 > A gulp plugin for spell-checking with [GNU Aspell](http://aspell.net/).
 
