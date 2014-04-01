@@ -47,6 +47,7 @@ module.exports = function (options) {
         var len;
         var i = 0;
         var words = [];
+        var normalization = /(\,|\.|\?|\!|\*|\_|\(|\)|\{|\}|\[|\]|\"|\:)/g;
 
         if (content instanceof Buffer) {
             content = content.toString('utf-8');
@@ -58,7 +59,12 @@ module.exports = function (options) {
         for (i; i < len; i = i + 1) {
             // Check if this is a real word
             if (content[i].match(/\w/g)) {
-                words.push(content[i]);
+                content[i] = content[i].replace(normalization, '').trim();
+
+                if (!~words.indexOf(content[i])) {
+                    console.log(content[i]);
+                    words.push(content[i]);
+                }
             }
         }
 
@@ -74,35 +80,36 @@ module.exports = function (options) {
         var self = this;
         var contents = file.contents.toString('utf-8');
         var words = extractWords(contents);
-        var len = words.length;
-        var i = 0;
-        var checked = 0;
+        var word;
         var corrections = [];
 
-        function handleSuggestion (word) {
-            return function onSuggestion (correct, suggestions) {
-                checked = checked + 1;
+        function next (correct, suggestions) {
+            suggestions = suggestions || [];
 
-                if (!correct && suggestions.length) {
-                    corrections.push(util.format('{%d} %s: %s', corrections.length, word, suggestions.join(', '));
+            if (!correct && suggestions.length) {
 
-                    contents = contents.replace(word, util.format('%s {%d}', word, corrections.length - 1));
-                }
+                corrections.push(util.format('{%d} %s: %s', corrections.length, word, suggestions.join(', ')));
 
-                if (checked === len) {
-                    contents = contents + '\n\n' + corrections.join('\n');
+                contents = contents.replace(new RegExp(word, 'g'), util.format('%s {%d}', word, corrections.length - 1));
+            }
 
-                    file.contents = new Buffer(contents);
-                    self.push(file);
+            word = words.pop();
 
-                    return callback();
-                }
-            };
+            if (!word) {
+                contents = contents + '\n\n' + corrections.join('\n');
+
+                file.contents = new Buffer(contents);
+                self.push(file);
+
+                return callback();
+            }
+
+            dictionary.spellSuggestions(word, next);
         }
 
-        for (i; i < len; i = i + 1) {
-            dictionary.spellSuggestions(words[i], handleSuggestion(words[i]));
-        }
+        words = words.reverse();
+
+        return next();
     }
 
     return through.obj(check);
