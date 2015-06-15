@@ -41,7 +41,6 @@ module.exports = function (options) {
         aspell((options.ignore || []).map(function(str) { return util.format("@%s\n", str); }).join("") + '^' + contents.replace(/\r?\n/g, '^\n'))
             .on('error', function onError (err) {
                 err = err.toString('utf-8');
-
                 return self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
             })
             .on('result', function onResult (result) {
@@ -50,7 +49,7 @@ module.exports = function (options) {
                         gutil.log(gutil.colors.red("Misspelling:"),
                             file.relative,
                             util.format("Line %s, Column %s", line, result.position + 1),
-                            util.format(options.replacement, gutil.colors.red.bold(result.word), result.alternatives.join(', ')));
+                            options.hideSuggestions ? gutil.colors.red.bold(result.word) : util.format(options.replacement, gutil.colors.red.bold(result.word), result.alternatives.join(', ')));
                     } else {
                         contents = contents.replace(result.word, util.format(options.replacement, result.word, result.alternatives.join(', ')));
                     }
