@@ -1,7 +1,7 @@
 {
   "name": "gulp-spellcheck",
   "description": "A gulp plugin for spell-checking with GNU Aspell.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": {
     "name": "André König",
     "email": "andre.koenig@posteo.de"
