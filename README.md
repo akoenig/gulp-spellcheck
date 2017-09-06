@@ -45,11 +45,37 @@ Default: '%s (suggestions: %s)'
 
 The string that will replace the wrong word whereas the first placeholder is the wrong word and the second placeholder a list of suggestions.
 
+##### stdout
+Type: `Boolean`
+Default: 'false'
+
+Print spelling errors to stdout instead of altering the stream.
+
+##### hideSuggestions
+Type: `Boolean`
+Default: 'false'
+
+Hide suggestions when using stdout.
+
+##### mode
+Type: `String`
+Default: 'none'
+
+Choose aspell mode. See [GNU Aspell Documentation](http://aspell.net/man-html/Notes-on-Various-Filters-and-Filter-Modes.html#Notes-on-Various-Filters-and-Filter-Modes) for details.
+
+##### ignore
+Type: `Array` (of `Array`s)
+Default: '[]'
+
+List of words to be ignored.
+
 ## Changelog
 
-### Version 0.2.0 (Future)
+### Version 0.2.0 (20150624)
 
-- Ignore list
+- Added ignore list option
+- Added options hideSuggestions, mode and stdout
+- Improved output to include line and column number
 
 ### Version 0.1.2 (20140331)
 
