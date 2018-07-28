@@ -31,6 +31,10 @@ module.exports = function (options) {
     function check (file, enc, callback) {
         /*jshint validthis:true */
         var self = this;
+        if(!file.contents)
+        {
+            return callback();
+        }
         var contents = file.contents.toString('utf-8');
 
         // Remove all line breaks and add a circumflex in order to disable 'pipe mode'.

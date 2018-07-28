@@ -9,6 +9,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
+    "preinstall": "echo 'This npm package requires installing aspell for development:' && sudo apt install aspell",
     "test": "gulp"
   },
   "repository": {
